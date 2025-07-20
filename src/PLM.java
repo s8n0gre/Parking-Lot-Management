@@ -36,7 +36,7 @@ public class PLM {
     public void showAvailableSlots() {
         ResultSet rs = null;
         try {
-            String sql = "SELECT * FROM reservation_slot_details WHERE SLOT_BOOKING_STATUS='Available'";
+            String sql = "SELECT * FROM reservation_slot_details WHERE SLOT_BOOKING_STATUS='Available' ORDER BY RESERVATION_ID asc";
             preparedStatement = connection.prepareStatement(sql);
             rs = preparedStatement.executeQuery();
             boolean found = false;
@@ -63,6 +63,54 @@ public class PLM {
             close(rs, preparedStatement);
         }
     }
+public void addSlot() {
+    System.out.println("\n---------------------------------------");
+    try {
+        System.out.print("Enter the Reservation ID: ");
+        int reservationId = Integer.parseInt(reader.readLine());
+
+        System.out.print("Enter the Slot ID: ");
+        int slotId = Integer.parseInt(reader.readLine());
+
+        System.out.print("Enter Start Time (e.g., 10:00 AM): ");
+        String startTime = reader.readLine();
+
+        System.out.print("Enter End Time (e.g., 11:00 AM): ");
+        String endTime = reader.readLine();
+
+        System.out.print("Enter Booking Status (Available/Booked): ");
+        String status = reader.readLine();
+
+        System.out.print("Enter Reservation Status (Available/Booked): ");
+        String resStatus = reader.readLine();
+
+        String sql = "INSERT INTO reservation_slot_details (RESERVATION_ID, SLOT_ID, SLOT_START_TIME, SLOT_END_TIME, SLOT_BOOKING_STATUS, RESERVATION_STATUS) VALUES (?, ?, ?, ?, ?, ?)";
+
+        preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, reservationId);
+        preparedStatement.setInt(2, slotId);
+        preparedStatement.setString(3, startTime);
+        preparedStatement.setString(4, endTime);
+        preparedStatement.setString(5, status);
+        preparedStatement.setString(6, resStatus);
+
+        int inserted = preparedStatement.executeUpdate();
+
+        if (inserted > 0) {
+            System.out.println(" Slot added successfully!");
+        } else {
+            System.out.println(" Failed to add the slot.");
+        }
+
+    } catch (SQLException | IOException | NumberFormatException e) {
+        e.printStackTrace();
+    } finally {
+        close(null, preparedStatement);
+    }
+
+    System.out.println("---------------------------------------\n");
+}
+
 
     public void bookSlot() {
         System.out.println("\n---------------------------------------");
@@ -76,7 +124,7 @@ public class PLM {
             if (updated > 0) {
                 System.out.println(" Slot booked successfully!");
             } else {
-                System.out.println("❌ No such available slot ID found or it is already booked.");
+                System.out.println(" No such available slot ID found or it is already booked.");
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
@@ -176,21 +224,23 @@ public class PLM {
         System.out.println("=======================================");
         System.out.println("1. Available Slots for Reservation");
         System.out.println("2. Book a Slot for Reservation");
-        System.out.println("3. Cancel a Reservation");
-        System.out.println("4. Book from Our Agents");
-        System.out.println("5. View Reservation Details");
-        System.out.println("6. Previous Menu");
-        System.out.println("7. Exit");
+        System.out.println("3. Add a Slot into Reservation");
+        System.out.println("4. Cancel a Reservation");
+        System.out.println("5. Book from Our Agents");
+        System.out.println("6. View Reservation Details");
+        System.out.println("7. Previous Menu");
+        System.out.println("8. Exit");
         System.out.print("Enter your choice: ");
         int choice = Integer.parseInt(reader.readLine());
         switch (choice) {
             case 1 -> showAvailableSlots();
             case 2 -> bookSlot();
-            case 3 -> cancelReservation();
-            case 4 -> bookFromAgents();
-            case 5 -> viewReservationDetails();
-            case 6 -> previousMenu();
-            case 7 -> exit();
+            case 3 -> addSlot();
+            case 4 -> cancelReservation();
+            case 5 -> bookFromAgents();
+            case 6 -> viewReservationDetails();
+            case 7 -> previousMenu();
+            case 8 -> exit();
             default -> System.out.println("❌ Invalid choice, please try again.");
         }
     }
@@ -247,4 +297,3 @@ public class PLM {
         }
     }
 }
-

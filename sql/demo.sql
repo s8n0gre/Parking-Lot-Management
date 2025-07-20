@@ -1,1 +1,1 @@
-select * from reservation_slot_details;
+select * from RESERVATION_SLOT_DETAILS;
